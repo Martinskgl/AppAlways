@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum StatusOrder: string
 {
-    case paid = 'paid';
-    case failed = 'failed';
-    case pending = 'pending';
+    case PAID = 'paid';
+    case FAILED = 'failed';
+    case PENDING = 'pending';
 }
