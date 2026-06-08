@@ -13,13 +13,15 @@ class PaymentWebhookService
     
     public function paymentProcess(Order $order, string $status): void
     {
-        abort_if(
-            in_array($order->status, [StatusOrder::PAID, StatusOrder::FAILED]),
-            400,
-            'Este pedido já foi processado.'
-        );        
-
         DB::transaction(function () use ($order, $status) {
+            $order = Order::lockForUpdate()->find($order->id);
+
+            abort_if(
+                in_array($order->status, [StatusOrder::PAID, StatusOrder::FAILED]),
+                400,
+                'Este pedido já foi processado.'
+            );
+
             if ($status === StatusGateway::APPROVED->value) {
                 $order->update(['status' => StatusOrder::PAID]);
 
