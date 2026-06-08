@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StatusOrder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,7 @@ class Order extends Model
 
     protected $casts = [
         'total_amount' => 'decimal:2',
+        'status'       => StatusOrder::class,
     ];
 
     public function customer(): BelongsTo
