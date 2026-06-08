@@ -41,7 +41,11 @@ class WebhookController extends Controller
 
         $this->paymentWebhookService->paymentProcess($order, $request->status);
 
-        return new PaymentResource($order->refresh());
+        return response()->json([
+            'success' => true,
+            'message' => 'Pagamento processado com sucesso.',
+            'data'    => new PaymentResource($order->refresh()),
+        ]);
 
     }
 }

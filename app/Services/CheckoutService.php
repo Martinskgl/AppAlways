@@ -15,27 +15,28 @@ class CheckoutService
 
     public function process(array $payload): Order
     {
-        return DB::transaction(function () use ($payload) {
-            $items = [];
-            $total = 0;
+        return DB::transaction(
+            function () use ($payload) {
+                $items = [];
+                $total = 0;
 
-            foreach ($payload['items'] as $item) {
-                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+                foreach ($payload['items'] as $item) {
+                    $product = Product::lockForUpdate()->findOrFail($item['product_id']);
 
-                abort_if(
-                    $product->stock < $item['quantity'],
-                    422,
-                    "Estoque insuficiente para este produto"
-                );
+                    abort_if(
+                        $product->stock < $item['quantity'],
+                        422,
+                        "Estoque insuficiente para este produto"
+                    );
 
-                $items[] = [
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                ];
+                    $items[] = [
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $product->price,
+                    ];
 
-                $total += $item['quantity'] * $product->price;
-            }
+                    $total += $item['quantity'] * $product->price;
+                }
                 $order = Order::create([
                     'customer_id' => $payload['customer_id'],
                     'total_amount' => $total,
