@@ -11,7 +11,7 @@ class Product extends Model
 
     protected $casts = [
         'stock' => 'integer',
-        'price' => 'decimal:10,2',
+        'price' => 'decimal:2',
     ];
 
     public function orderItems(): HasMany
