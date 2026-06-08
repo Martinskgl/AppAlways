@@ -128,7 +128,7 @@
                     "Webhook"
                 ],
                 "summary": "Confirmação de pagamento via webhook",
-                "operationId": "e0ee9229a2d2ce105641a5f10b8c4a12",
+                "operationId": "2f62cd05bf307ca54f7cfe2a7b5189e1",
                 "requestBody": {
                     "required": true,
                     "content": {

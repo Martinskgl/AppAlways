@@ -116,7 +116,7 @@ Realiza o checkout de um pedido. Calcula o total, chama o gateway de pagamento e
 }
 ```
 
-**Resposta (200):**
+**Resposta (201):**
 ```json
 {
   "success": true,
@@ -279,7 +279,7 @@ Gateway Simulado (PaymentGatewayService)
     │  Aprova ou recusa com base no último dígito do cartão
     │  Retorna transaction_id
     ▼
-POST /api/webhook/payment  (ou php artisan app:simulate-payment-webhook)
+POST /api/webhook/payment  (ou ./vendor/bin/sail artisan app:simulate-payment-webhook)
     │  Atualiza status para "paid" ou "failed"
     │  Se aprovado: deduz estoque dos produtos
     ▼

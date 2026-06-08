@@ -51,10 +51,10 @@ class CheckoutController extends Controller
     {
         $order = $this->checkoutService->process($request->validated());
 
-        return response()->json([ 
+        return response()->json([
             'success' => true,
             'message' => 'Checkout realizado com sucesso',
             'data' => new OrderResource($order),
-        ]);
+        ], 201);
     }
 }
