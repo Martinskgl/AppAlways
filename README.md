@@ -23,8 +23,10 @@ cd AppAlways
 ### 2. Instale as dependências PHP
 
 ```bash
-composer install
+composer install --ignore-platform-reqs
 ```
+
+> O `--ignore-platform-reqs` é necessário porque o `composer.lock` foi gerado com PHP 8.4+. A partir do passo 4, tudo roda dentro do container do Sail, que já possui a versão correta do PHP.
 
 ### 3. Configure o ambiente
 

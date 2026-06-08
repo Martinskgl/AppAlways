@@ -51,8 +51,6 @@ class CheckoutService
                     'card_last_digits' => $payment['card_last_digits'],
                 ]);
 
-
-
                 return $order;
             }
         );
