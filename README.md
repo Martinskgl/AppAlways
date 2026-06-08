@@ -1,58 +1,297 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API de Checkout — AppAlways
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API RESTful de checkout para loja virtual, desenvolvida em Laravel 11. Recebe pedidos de um app mobile, processa pagamentos via gateway simulado e confirma pagamentos via webhook.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2+
+- Composer
+- MySQL 8.0+ (ou Docker via Laravel Sail)
+- Laravel Sail (opcional)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Instalação
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Clone o repositório
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <url-do-repositorio>
+cd AppAlways
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Instale as dependências
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Configure o ambiente
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4. Configure o banco de dados
 
-## Security Vulnerabilities
+Edite o `.env` com as credenciais do MySQL:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=appalways
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## License
+> Alternativamente, o projeto suporta **Laravel Sail** (Docker). Veja a seção [Rodando com Sail](#rodando-com-sail).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 5. Execute as migrations e seeds
+
+```bash
+php artisan migrate --seed
+```
+
+Isso criará as tabelas e populará o banco com:
+- **3 clientes** de exemplo (João, Maria, Pedro)
+- **4 produtos** de exemplo com estoque inicial de 100 unidades cada
+
+### 6. Inicie o servidor
+
+```bash
+php artisan serve
+```
+
+A API estará disponível em `http://localhost:8000`.
+
+---
+
+## Rodando com Sail
+
+```bash
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate --seed
+```
+
+A API ficará disponível em `http://localhost:80`.
+
+---
+
+## Documentação Swagger
+
+A documentação interativa da API está disponível em:
+
+```
+http://localhost:8000/api/documentation
+```
+
+Para regenerar os docs após alterações:
+
+```bash
+php artisan l5-swagger:generate
+```
+
+---
+
+## Endpoints
+
+### POST `/api/checkout`
+
+Realiza o checkout de um pedido. Calcula o total, chama o gateway de pagamento e cria o pedido com status `pending`.
+
+**Body:**
+```json
+{
+  "customer_id": 1,
+  "items": [
+    { "product_id": 1, "quantity": 2 },
+    { "product_id": 3, "quantity": 1 }
+  ],
+  "credit_card": {
+    "holder_name": "João Silva",
+    "number": "1234567890123456",
+    "expiry_month": 12,
+    "expiry_year": 2027,
+    "cvv": "123"
+  }
+}
+```
+
+**Resposta (200):**
+```json
+{
+  "success": true,
+  "message": "Checkout realizado com sucesso",
+  "data": {
+    "id": 1,
+    "status": "pending",
+    "total_amount": "35.00",
+    "transaction_id": "txn_fake_AbCdEfGh",
+    "card_last_digits": "3456",
+    "customer": { ... },
+    "items": [ ... ]
+  }
+}
+```
+
+> **Regra do gateway simulado:** último dígito do cartão **par** → aprovado | **ímpar** → recusado.
+
+---
+
+### POST `/api/webhook/payment`
+
+Recebe a confirmação de pagamento do gateway. Atualiza o status do pedido para `paid` ou `failed` e deduz o estoque em caso de aprovação.
+
+Implementa **idempotência**: pedidos já finalizados (`paid` ou `failed`) são ignorados.
+
+**Body:**
+```json
+{
+  "order_id": 1,
+  "status": "approved"
+}
+```
+
+**Valores aceitos para `status`:** `approved` | `declined`
+
+**Resposta (200):**
+```json
+{
+  "order_id": 1,
+  "status": "paid",
+  "transaction_id": "txn_fake_AbCdEfGh"
+}
+```
+
+---
+
+### GET `/api/orders/{order_id}`
+
+Retorna os dados completos de um pedido, incluindo cliente e itens.
+
+**Resposta (200):**
+```json
+{
+  "success": true,
+  "message": "Pedido encontrado.",
+  "data": {
+    "id": 1,
+    "status": "paid",
+    "total_amount": "35.00",
+    "transaction_id": "txn_fake_AbCdEfGh",
+    "card_last_digits": "3456",
+    "customer": {
+      "id": 1,
+      "name": "João",
+      "email": "joao@example.com",
+      "phone": "123456789",
+      "document": "12345678901234"
+    },
+    "items": [
+      {
+        "product_id": 1,
+        "product_name": "Caixa de Limão",
+        "quantity": 2,
+        "unit_price": "10.00",
+        "subtotal": 20
+      }
+    ],
+    "created_at": "2026-06-05T20:00:00.000000Z"
+  }
+}
+```
+
+---
+
+## Artisan Commands
+
+### Simular confirmações de pagamento
+
+Busca todos os pedidos com status `pending` e processa as confirmações usando a mesma regra do gateway (último dígito do cartão par/ímpar):
+
+```bash
+php artisan app:simulate-payment-webhook
+```
+
+### Simular um checkout completo
+
+Cria um pedido de forma automática com cliente e produtos aleatórios do banco:
+
+```bash
+# Cartão aleatório
+php artisan app:simulate-checkout
+
+# Forçar aprovação (último dígito par)
+php artisan app:simulate-checkout --approved
+
+# Forçar recusa (último dígito ímpar)
+php artisan app:simulate-checkout --declined
+```
+
+---
+
+## Agendamento (Scheduler)
+
+O command `app:simulate-payment-webhook` está registrado no scheduler do Laravel para rodar **a cada minuto**.
+
+Para ativar o agendamento, adicione a seguinte entrada ao cron do sistema:
+
+```bash
+crontab -e
+```
+
+```
+* * * * * cd /caminho-absoluto-do-projeto && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Substitua `/caminho-absoluto-do-projeto` pelo caminho real do projeto na máquina, por exemplo `/var/www/appalways`.
+
+---
+
+## Estrutura do Banco de Dados
+
+| Tabela | Descrição |
+|---|---|
+| `products` | Produtos disponíveis com preço e estoque |
+| `customers` | Clientes cadastrados |
+| `orders` | Pedidos com status, total e dados do pagamento |
+| `order_items` | Itens de cada pedido com quantidade e preço unitário |
+
+**Status possíveis de um pedido:** `pending` → `paid` ou `failed`
+
+---
+
+## Fluxo Completo
+
+```
+App Mobile
+    │
+    ▼
+POST /api/checkout
+    │  Valida dados, calcula total, chama gateway simulado
+    │  Cria pedido com status "pending"
+    ▼
+Gateway Simulado (PaymentGatewayService)
+    │  Aprova ou recusa com base no último dígito do cartão
+    │  Retorna transaction_id
+    ▼
+POST /api/webhook/payment  (ou php artisan app:simulate-payment-webhook)
+    │  Atualiza status para "paid" ou "failed"
+    │  Se aprovado: deduz estoque dos produtos
+    ▼
+GET /api/orders/{id}
+    │  Consulta dados completos do pedido
+```
+
+---
+
+## Tecnologias
+
+- **Laravel 11** — Framework PHP
+- **MySQL 8** — Banco de dados relacional
+- **L5-Swagger** — Documentação automática da API
+- **Laravel Sail** — Ambiente Docker integrado
