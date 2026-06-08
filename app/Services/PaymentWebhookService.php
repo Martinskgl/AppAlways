@@ -24,7 +24,7 @@ class PaymentWebhookService
                 $order->update(['status' => StatusOrder::PAID]);
 
                 foreach ($order->orderItems as $item) {
-                    $item->product->decrement('stock', $item->quantity);
+                      $item->product()->lockForUpdate()->first()->decrement('stock', $item->quantity);
                 }
             } else {
                 $order->update(['status' => StatusOrder::FAILED]);
