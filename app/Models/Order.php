@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'customer_id',
+        'status',
+        'total_amount',
+        'transaction_id',
+        'card_last_digits'
+    ];
+
 
     protected $casts = [
         'total_amount' => 'decimal:2',
@@ -16,11 +23,11 @@ class Order extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->BelongsTo(Customer::class);
     }
 
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->HasMany(OrderItem::class);
     }
 }

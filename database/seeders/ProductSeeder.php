@@ -14,22 +14,22 @@ class ProductSeeder extends Seeder
     {
         $products = [
             [
-                'name' => 'Caixa de Limão',
+                'name' => 'Caixa de kiwi',
                 'price' => 10.00,
                 'stock' => 100,
             ],
             [
-                'name' => 'Caixa de Limão',
+                'name' => 'Caixa de laranja',
                 'price' => 10.00,
                 'stock' => 100,
             ],
             [
-                'name' => 'Câmara de Limão',
+                'name' => 'Câmara de abobora',
                 'price' => 20.00,
                 'stock' => 100,
             ],
             [
-                'name' => 'Caneta de Limão',
+                'name' => 'Caneta de abacate',
                 'price' => 15.00,
                 'stock' => 100,
             ],

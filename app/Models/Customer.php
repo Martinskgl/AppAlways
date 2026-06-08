@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
-    protected $guarded = [];
+    protected $fillable = ['name', 'email', 'phone', 'document'];
 
     protected $casts = [
         'document' => 'string:14',
     ];
 
-    public function orders(): hasMany
+    public function orders(): HasMany
     {
-        return $this->hasMany(Order::class);
+        return $this->HasMany(Order::class);
     }
 }

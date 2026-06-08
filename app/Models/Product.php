@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-    protected $guarded = [];
+    protected $fillable = ['name', 'price', 'stock'];
 
     protected $casts = [
         'stock' => 'integer',
@@ -16,6 +16,6 @@ class Product extends Model
 
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->HasMany(OrderItem::class);
     }
 }

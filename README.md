@@ -6,10 +6,8 @@ API RESTful de checkout para loja virtual, desenvolvida em Laravel 11. Recebe pe
 
 ## Requisitos
 
-- PHP 8.2+
-- Composer
-- MySQL 8.0+ (ou Docker via Laravel Sail)
-- Laravel Sail (opcional)
+- [Docker](https://www.docker.com/products/docker-desktop) instalado e rodando
+- [Composer](https://getcomposer.org/) instalado localmente
 
 ---
 
@@ -22,7 +20,7 @@ git clone <url-do-repositorio>
 cd AppAlways
 ```
 
-### 2. Instale as dependências
+### 2. Instale as dependências PHP
 
 ```bash
 composer install
@@ -32,52 +30,49 @@ composer install
 
 ```bash
 cp .env.example .env
-php artisan key:generate
 ```
 
-### 4. Configure o banco de dados
-
-Edite o `.env` com as credenciais do MySQL:
+Edite o `.env` e ajuste as variáveis do banco para apontar para o container do Sail:
 
 ```env
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=appalways
-DB_USERNAME=root
-DB_PASSWORD=
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
 ```
 
-> Alternativamente, o projeto suporta **Laravel Sail** (Docker). Veja a seção [Rodando com Sail](#rodando-com-sail).
-
-### 5. Execute as migrations e seeds
+### 4. Suba os containers
 
 ```bash
-php artisan migrate --seed
+./vendor/bin/sail up -d
+```
+
+Isso iniciará os containers da aplicação e do MySQL em segundo plano.
+
+> **Dica:** adicione um alias para não precisar digitar o caminho completo:
+> ```bash
+> alias sail='./vendor/bin/sail'
+> ```
+
+### 5. Gere a chave da aplicação
+
+```bash
+./vendor/bin/sail artisan key:generate
+```
+
+### 6. Execute as migrations e seeds
+
+```bash
+./vendor/bin/sail artisan migrate --seed
 ```
 
 Isso criará as tabelas e populará o banco com:
 - **3 clientes** de exemplo (João, Maria, Pedro)
 - **4 produtos** de exemplo com estoque inicial de 100 unidades cada
 
-### 6. Inicie o servidor
-
-```bash
-php artisan serve
-```
-
-A API estará disponível em `http://localhost:8000`.
-
----
-
-## Rodando com Sail
-
-```bash
-./vendor/bin/sail up -d
-./vendor/bin/sail artisan migrate --seed
-```
-
-A API ficará disponível em `http://localhost:80`.
+A API estará disponível em `http://localhost`.
 
 ---
 
@@ -86,13 +81,13 @@ A API ficará disponível em `http://localhost:80`.
 A documentação interativa da API está disponível em:
 
 ```
-http://localhost:8000/api/documentation
+http://localhost/api/documentation
 ```
 
 Para regenerar os docs após alterações:
 
 ```bash
-php artisan l5-swagger:generate
+./vendor/bin/sail artisan l5-swagger:generate
 ```
 
 ---
@@ -214,7 +209,7 @@ Retorna os dados completos de um pedido, incluindo cliente e itens.
 Busca todos os pedidos com status `pending` e processa as confirmações usando a mesma regra do gateway (último dígito do cartão par/ímpar):
 
 ```bash
-php artisan app:simulate-payment-webhook
+./vendor/bin/sail artisan app:simulate-payment-webhook
 ```
 
 ### Simular um checkout completo
@@ -223,13 +218,13 @@ Cria um pedido de forma automática com cliente e produtos aleatórios do banco:
 
 ```bash
 # Cartão aleatório
-php artisan app:simulate-checkout
+./vendor/bin/sail artisan app:simulate-checkout
 
 # Forçar aprovação (último dígito par)
-php artisan app:simulate-checkout --approved
+./vendor/bin/sail artisan app:simulate-checkout --approved
 
 # Forçar recusa (último dígito ímpar)
-php artisan app:simulate-checkout --declined
+./vendor/bin/sail artisan app:simulate-checkout --declined
 ```
 
 ---
@@ -245,10 +240,15 @@ crontab -e
 ```
 
 ```
-* * * * * cd /caminho-absoluto-do-projeto && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /caminho-absoluto-do-projeto && ./vendor/bin/sail artisan schedule:run >> /dev/null 2>&1
 ```
 
-Substitua `/caminho-absoluto-do-projeto` pelo caminho real do projeto na máquina, por exemplo `/var/www/appalways`.
+Substitua `/caminho-absoluto-do-projeto` pelo caminho real do projeto na máquina, por exemplo `/home/user/appalways`.
+
+> Se preferir rodar o scheduler **dentro do container** diretamente:
+> ```bash
+> ./vendor/bin/sail artisan schedule:work
+> ```
 
 ---
 

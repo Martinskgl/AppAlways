@@ -20,7 +20,7 @@ class CheckoutService
             $total = 0;
 
             foreach ($payload['items'] as $item) {
-                $product = Product::findOrFail($item['product_id']);
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
 
                 abort_if(
                     $product->stock < $item['quantity'],

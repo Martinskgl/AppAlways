@@ -31,8 +31,18 @@ class CheckoutRequest extends FormRequest
 
             'credit_card.holder_name'   => ['required', 'string', 'max:255'],
             'credit_card.number'        => ['required', 'string', 'size:16'],
-            'credit_card.expiry_month'  => ['required', 'integer', 'between:1,12'],
-            'credit_card.expiry_year'   => ['required', 'integer', 'min:' . date('Y')],
+            'credit_card.expiry_year' => ['required', 'integer', 'min:' . date('Y')],
+            'credit_card.expiry_month' => [
+                'required',
+                'integer',
+                'between:1,12',
+                function ($attribute, $value, $fail) {
+                    $year = request()->input('credit_card.expiry_year');
+                    if ($year == date('Y') && $value < date('n')) {
+                        $fail('O cartão está expirado.');
+                    }
+                },
+            ],
             'credit_card.cvv'           => ['required', 'string', 'size:3'],
         ];
     }
