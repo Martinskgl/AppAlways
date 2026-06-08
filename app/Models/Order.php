@@ -23,11 +23,11 @@ class Order extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->BelongsTo(Customer::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function orderItems(): HasMany
     {
-        return $this->HasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class);
     }
 }
