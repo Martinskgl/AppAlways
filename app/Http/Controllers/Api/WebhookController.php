@@ -37,7 +37,14 @@ class WebhookController extends Controller
 
     public function __invoke(WebhookRequest $request)
     {        
-        $order = Order::findOrFail($request->order_id);
+        $order = Order::find($request->order_id);
+
+        if (! $order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pedido não encontrado.',
+            ], 404);
+        }
 
         $this->paymentWebhookService->paymentProcess($order, $request->status);
 
