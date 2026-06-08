@@ -10,7 +10,7 @@ class PaymentGatewayService
 {
     public function charge(Order $order, array $creditCard): array
     {
-        sleep(rand(1, 5));
+        sleep(rand(1, 2));
 
         $lastDigit = (int) substr($creditCard['number'], -1);
         $approved = $lastDigit % 2 == 0;
